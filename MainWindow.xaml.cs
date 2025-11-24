@@ -316,87 +316,87 @@ namespace PrivoxyManager
                 ConfigPathTextBox.Text = ofd.FileName;
         }
 
-private void StartLog_Click(object sender, RoutedEventArgs e)
-{
-    try
-    {
-        if (!File.Exists(LogPath))
+        private void StartLog_Click(object sender, RoutedEventArgs e)
         {
-            MessageBox.Show($"Log file not found:\n{LogPath}");
-            return;
+            try
+            {
+                if (!File.Exists(LogPath))
+                {
+                    MessageBox.Show($"Log file not found:\n{LogPath}");
+                    return;
+                }
+
+                // Close previous if exists
+                StopLogInternal();
+
+                _logStream = new FileStream(
+                    LogPath,
+                    FileMode.Open,
+                    FileAccess.Read,
+                    FileShare.ReadWrite
+                );
+
+                _logReader = new StreamReader(_logStream);
+
+                // Move to end of file
+                _logStream.Seek(0, SeekOrigin.End);
+
+                _logTimer = new System.Windows.Threading.DispatcherTimer();
+                _logTimer.Interval = TimeSpan.FromMilliseconds(300);
+                _logTimer.Tick += LogTimer_Tick;
+                _logTimer.Start();
+
+                LogTextBox.AppendText($"--- Log started: {DateTime.Now} ---\n");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Failed to start log:\n{ex.Message}");
+            }
         }
 
-        // Close previous if exists
-        StopLogInternal();
-
-        _logStream = new FileStream(
-            LogPath,
-            FileMode.Open,
-            FileAccess.Read,
-            FileShare.ReadWrite
-        );
-
-        _logReader = new StreamReader(_logStream);
-
-        // Move to end of file
-        _logStream.Seek(0, SeekOrigin.End);
-
-        _logTimer = new System.Windows.Threading.DispatcherTimer();
-        _logTimer.Interval = TimeSpan.FromMilliseconds(300);
-        _logTimer.Tick += LogTimer_Tick;
-        _logTimer.Start();
-
-        LogTextBox.AppendText($"--- Log started: {DateTime.Now} ---\n");
-    }
-    catch (Exception ex)
-    {
-        MessageBox.Show($"Failed to start log:\n{ex.Message}");
-    }
-}
-
-private void LogTimer_Tick(object? sender, EventArgs e)
-{
-    if (_logReader == null) return;
-
-    while (!_logReader.EndOfStream)
-    {
-        string? line = _logReader.ReadLine();
-        if (line != null)
+        private void LogTimer_Tick(object? sender, EventArgs e)
         {
-            LogTextBox.AppendText(line + "\n");
-            LogTextBox.ScrollToEnd();
+            if (_logReader == null) return;
+
+            while (!_logReader.EndOfStream)
+            {
+                string? line = _logReader.ReadLine();
+                if (line != null)
+                {
+                    LogTextBox.AppendText(line + "\n");
+                    LogTextBox.ScrollToEnd();
+                }
+            }
         }
-    }
-}
 
-private void StopLog_Click(object sender, RoutedEventArgs e)
-{
-    StopLogInternal();
-    LogTextBox.AppendText($"--- Log stopped: {DateTime.Now} ---\n");
-}
+        private void StopLog_Click(object sender, RoutedEventArgs e)
+        {
+            StopLogInternal();
+            LogTextBox.AppendText($"--- Log stopped: {DateTime.Now} ---\n");
+        }
 
-private void StopLogInternal()
-{
-    _logTimer?.Stop();
-    _logTimer = null;
+        private void StopLogInternal()
+        {
+            _logTimer?.Stop();
+            _logTimer = null;
 
-    _logReader?.Dispose();
-    _logReader = null;
+            _logReader?.Dispose();
+            _logReader = null;
 
-    _logStream?.Dispose();
-    _logStream = null;
-}
+            _logStream?.Dispose();
+            _logStream = null;
+        }
 
-private void ClearLog_Click(object sender, RoutedEventArgs e)
-{
-    LogTextBox.Clear();
-}
+        private void ClearLog_Click(object sender, RoutedEventArgs e)
+        {
+            LogTextBox.Clear();
+        }
 
-protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
-{
-    StopLogInternal();
-    base.OnClosing(e);
-}
+        protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
+        {
+            StopLogInternal();
+            base.OnClosing(e);
+        }
 
 
     }

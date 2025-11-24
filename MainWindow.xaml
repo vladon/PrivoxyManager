@@ -5,174 +5,203 @@
         Height="650"
         Width="1000"
         WindowStartupLocation="CenterScreen">
-<TabControl x:Name="MainTabs" Margin="0,10,0,0">
-    <TabItem Header="Config">
-    <Grid Margin="12">
-        
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
-            <RowDefinition Height="5" />
-            <RowDefinition Height="*" />
-            <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
+    <TabControl x:Name="MainTabs"
+            Margin="0,10,0,0">
+        <TabItem Header="Config">
+            <Grid Margin="12">
 
-        <Border x:Name="AdminWarningPanel"
-                Background="#FF4500"
-                Padding="8"
-                Visibility="Collapsed">
-            <TextBlock Text="⚠ Приложение запущено без прав администратора. Некоторые функции будут недоступны."
-                    Foreground="White"
-                    FontWeight="Bold"/>
-        </Border>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="5"/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
 
-        <!-- Верхняя панель настроек -->
-        <Border Grid.Row="0" Padding="10" CornerRadius="8" BorderThickness="1" BorderBrush="#DDD">
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="3*" />
-                    <ColumnDefinition Width="2*" />
-                    <ColumnDefinition Width="Auto" />
-                </Grid.ColumnDefinitions>
+                <Border x:Name="AdminWarningPanel"
+                        Background="#FF4500"
+                        Padding="8"
+                        Visibility="Collapsed">
+                    <TextBlock Text="⚠ Приложение запущено без прав администратора. Некоторые функции будут недоступны."
+                               Foreground="White"
+                               FontWeight="Bold"/>
+                </Border>
 
-                <StackPanel Orientation="Vertical" Margin="0,0,15,0">
-                        <Button Content="Run as Administrator"
-                                Margin="0,10,0,0"
-                                Padding="10,5"
-                                Click="RunAsAdmin_Click" />               
+                <!-- Верхняя панель настроек -->
+                <Border Grid.Row="0"
+                        Padding="10"
+                        CornerRadius="8"
+                        BorderThickness="1"
+                        BorderBrush="#DDD">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="3*"/>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
 
-                    <TextBlock Text="Config file:" FontWeight="Bold" />
-                    <DockPanel Margin="0,4,0,0">
-                        <TextBox x:Name="ConfigPathTextBox"
-                                 Text="D:\tools\privoxy\config.txt"
-                                 MinWidth="350"
-                                 VerticalAlignment="Center" />
-                        <Button Content="Browse..."
-                                Margin="6,0,0,0"
-                                Padding="10,4"
-                                Click="BrowseConfig_Click" />
-                    </DockPanel>
+                        <StackPanel Orientation="Vertical"
+                                Margin="0,0,15,0">
+                            <Button Content="Run as Administrator"
+                                    Margin="0,10,0,0"
+                                    Padding="10,5"
+                                    Click="RunAsAdmin_Click"/>
 
-                    <TextBlock Text="Service name:" Margin="0,10,0,0" FontWeight="Bold" />
-                    <DockPanel Margin="0,4,0,0">
-                        <TextBox x:Name="ServiceNameTextBox"
-                                 Text="Privoxy"
-                                 MinWidth="200"
-                                 VerticalAlignment="Center" />
-                        <Button Content="Detect"
-                                Margin="6,0,0,0"
-                                Padding="10,4"
-                                Click="DetectService_Click" />
-                    </DockPanel>
-                </StackPanel>
+                            <TextBlock Text="Config file:"
+                                    FontWeight="Bold"/>
+                            <DockPanel Margin="0,4,0,0">
+                                <TextBox x:Name="ConfigPathTextBox"
+                                         Text="D:\tools\privoxy\config.txt"
+                                         MinWidth="350"
+                                         VerticalAlignment="Center"/>
+                                <Button Content="Browse..."
+                                        Margin="6,0,0,0"
+                                        Padding="10,4"
+                                        Click="BrowseConfig_Click"/>
+                            </DockPanel>
 
-                <!-- Кнопки управления службой -->
-                <StackPanel Grid.Column="1"
-                            Orientation="Vertical"
-                            Margin="0,0,15,0"
-                            VerticalAlignment="Center">
-                    <TextBlock Text="Service control" FontWeight="Bold" />
-                    <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                        <Button Content="Start"
-                                Width="70"
-                                Margin="0,0,5,0"
-                                Click="StartService_Click" />
-                        <Button Content="Stop"
-                                Width="70"
-                                Margin="0,0,5,0"
-                                Click="StopService_Click" />
-                        <Button Content="Restart"
-                                Width="80"
-                                Click="RestartService_Click" />
-                    </StackPanel>
-                    <TextBlock x:Name="ServiceStatusTextBlock"
-                               Margin="0,8,0,0"
-                               FontWeight="Bold" />
-                </StackPanel>
+                            <TextBlock Text="Service name:"
+                                    Margin="0,10,0,0"
+                                    FontWeight="Bold"/>
+                            <DockPanel Margin="0,4,0,0">
+                                <TextBox x:Name="ServiceNameTextBox"
+                                         Text="Privoxy"
+                                         MinWidth="200"
+                                         VerticalAlignment="Center"/>
+                                <Button Content="Detect"
+                                        Margin="6,0,0,0"
+                                        Padding="10,4"
+                                        Click="DetectService_Click"/>
+                            </DockPanel>
+                        </StackPanel>
 
-                <!-- Кнопки работы с конфигом -->
-                <StackPanel Grid.Column="2"
-                            Orientation="Vertical"
-                            VerticalAlignment="Center">
-                    <TextBlock Text="Config actions" FontWeight="Bold" />
-                    <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                        <Button Content="Load"
-                                Width="80"
-                                Margin="0,0,5,0"
-                                Click="LoadConfig_Click" />
-                        <Button Content="Save"
-                                Width="80"
-                                Margin="0,0,5,0"
-                                Click="SaveConfig_Click" />
-                        <Button Content="Save + Restart"
-                                Width="120"
-                                Click="SaveAndRestart_Click" />
-                    </StackPanel>
-                    <TextBlock x:Name="StatusTextBlock"
-                               Margin="0,8,0,0"
-                               TextWrapping="Wrap" />
-                </StackPanel>
+                        <!-- Кнопки управления службой -->
+                        <StackPanel Grid.Column="1"
+                                    Orientation="Vertical"
+                                    Margin="0,0,15,0"
+                                    VerticalAlignment="Center">
+                            <TextBlock Text="Service control"
+                                    FontWeight="Bold"/>
+                            <StackPanel Orientation="Horizontal"
+                                    Margin="0,4,0,0">
+                                <Button Content="Start"
+                                        Width="70"
+                                        Margin="0,0,5,0"
+                                        Click="StartService_Click"/>
+                                <Button Content="Stop"
+                                        Width="70"
+                                        Margin="0,0,5,0"
+                                        Click="StopService_Click"/>
+                                <Button Content="Restart"
+                                        Width="80"
+                                        Click="RestartService_Click"/>
+                            </StackPanel>
+                            <TextBlock x:Name="ServiceStatusTextBlock"
+                                       Margin="0,8,0,0"
+                                       FontWeight="Bold"/>
+                        </StackPanel>
+
+                        <!-- Кнопки работы с конфигом -->
+                        <StackPanel Grid.Column="2"
+                                    Orientation="Vertical"
+                                    VerticalAlignment="Center">
+                            <TextBlock Text="Config actions"
+                                    FontWeight="Bold"/>
+                            <StackPanel Orientation="Horizontal"
+                                    Margin="0,4,0,0">
+                                <Button Content="Load"
+                                        Width="80"
+                                        Margin="0,0,5,0"
+                                        Click="LoadConfig_Click"/>
+                                <Button Content="Save"
+                                        Width="80"
+                                        Margin="0,0,5,0"
+                                        Click="SaveConfig_Click"/>
+                                <Button Content="Save + Restart"
+                                        Width="120"
+                                        Click="SaveAndRestart_Click"/>
+                            </StackPanel>
+                            <TextBlock x:Name="StatusTextBlock"
+                                       Margin="0,8,0,0"
+                                       TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- Разделитель -->
+                <Border Grid.Row="1"
+                        Background="#EEE"/>
+
+                <!-- Редактор конфига -->
+                <Border Grid.Row="2"
+                        Padding="8"
+                        BorderBrush="#DDD"
+                        BorderThickness="1"
+                        CornerRadius="8">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <TextBlock Text="config.txt"
+                                   FontWeight="Bold"
+                                   Margin="0,0,0,4"/>
+                        <ScrollViewer Grid.Row="1"
+                                VerticalScrollBarVisibility="Auto"
+                                HorizontalScrollBarVisibility="Auto">
+                            <TextBox x:Name="ConfigEditorTextBox"
+                                     FontFamily="Consolas"
+                                     FontSize="13"
+                                     AcceptsReturn="True"
+                                     AcceptsTab="True"
+                                     VerticalScrollBarVisibility="Auto"
+                                     HorizontalScrollBarVisibility="Auto"
+                                     TextWrapping="NoWrap"/>
+                        </ScrollViewer>
+                    </Grid>
+                </Border>
+
+                <!-- Низ: подсказка -->
+                <TextBlock Grid.Row="3"
+                           Margin="4,6,4,0"
+                           Foreground="#777"
+                           FontSize="11"
+                           Text="Privoxy Manager edits config.txt and manages the Windows ‘Privoxy’ service. All operations are performed on behalf of the current user; running the service requires an Administrator."/>
             </Grid>
-        </Border>
-
-        <!-- Разделитель -->
-        <Border Grid.Row="1" Background="#EEE"/>
-
-        <!-- Редактор конфига -->
-        <Border Grid.Row="2" Padding="8" BorderBrush="#DDD" BorderThickness="1" CornerRadius="8">
-            <Grid>
+        </TabItem>
+        <TabItem Header="Log">
+            <Grid Margin="10">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
-                <TextBlock Text="config.txt"
-                           FontWeight="Bold"
-                           Margin="0,0,0,4"/>
-                <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
-                    <TextBox x:Name="ConfigEditorTextBox"
+
+                <StackPanel Orientation="Horizontal"
+                        Margin="0,0,0,10">
+                    <Button Content="Start log"
+                            Width="100"
+                            Click="StartLog_Click"/>
+                    <Button Content="Stop log"
+                            Width="100"
+                            Margin="10,0,0,0"
+                            Click="StopLog_Click"/>
+                    <Button Content="Clear"
+                            Width="100"
+                            Margin="10,0,0,0"
+                            Click="ClearLog_Click"/>
+                </StackPanel>
+
+                <ScrollViewer Grid.Row="1"
+                              VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Auto">
+                    <TextBox x:Name="LogTextBox"
                              FontFamily="Consolas"
                              FontSize="13"
                              AcceptsReturn="True"
                              AcceptsTab="True"
-                             VerticalScrollBarVisibility="Auto"
-                             HorizontalScrollBarVisibility="Auto"
+                             IsReadOnly="True"
                              TextWrapping="NoWrap"/>
                 </ScrollViewer>
             </Grid>
-        </Border>
-
-        <!-- Низ: подсказка -->
-        <TextBlock Grid.Row="3"
-                   Margin="4,6,4,0"
-                   Foreground="#777"
-                   FontSize="11"
-                   Text="Privoxy Manager edits config.txt and manages the Windows ‘Privoxy’ service. All operations are performed on behalf of the current user; running the service requires an Administrator."/>
-    </Grid>
-    </TabItem>
-   <TabItem Header="Log">
-        <Grid Margin="10">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                <Button Content="Start log" Width="100" Click="StartLog_Click"/>
-                <Button Content="Stop log" Width="100" Margin="10,0,0,0" Click="StopLog_Click"/>
-                <Button Content="Clear" Width="100" Margin="10,0,0,0" Click="ClearLog_Click"/>
-            </StackPanel>
-
-            <ScrollViewer Grid.Row="1"
-                          VerticalScrollBarVisibility="Auto"
-                          HorizontalScrollBarVisibility="Auto">
-                <TextBox x:Name="LogTextBox"
-                         FontFamily="Consolas"
-                         FontSize="13"
-                         AcceptsReturn="True"
-                         AcceptsTab="True"
-                         IsReadOnly="True"
-                         TextWrapping="NoWrap"/>
-            </ScrollViewer>
-        </Grid>
-    </TabItem>
-</TabControl>    
+        </TabItem>
+    </TabControl>
 </Window>
