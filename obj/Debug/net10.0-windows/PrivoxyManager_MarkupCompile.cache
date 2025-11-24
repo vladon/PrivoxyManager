@@ -1,5 +1,5 @@
 ﻿PrivoxyManager
-1.0.0.0
+
 
 winexe
 C#
@@ -12,9 +12,9 @@ TRACE;DEBUG;NET;NET10_0;NETCOREAPP;WINDOWS;WINDOWS7_0;NET5_0_OR_GREATER;NET6_0_O
 D:\projects\PrivoxyManager\App.xaml
 11407045341
 
-6-1666892427
-205-764538886
+4-1603145112
+206-493598966
 MainWindow.xaml;
 
-True
+False
 
