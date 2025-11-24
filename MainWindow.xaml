@@ -208,9 +208,14 @@
                                  Width="200"
                                  TextChanged="FilterTextBox_TextChanged"/>
                         <Button Content="Clear Filter"
-                                Width="100"
-                                Margin="10,0,0,0"
-                                Click="ClearFilter_Click"/>
+                                 Width="100"
+                                 Margin="10,0,0,0"
+                                 Click="ClearFilter_Click"/>
+                        <CheckBox x:Name="AutoScrollCheckBox"
+                                  Content="Auto-scroll"
+                                  IsChecked="True"
+                                  VerticalAlignment="Center"
+                                  Margin="20,0,0,0"/>
                     </StackPanel>
                 </Grid>
 

@@ -465,7 +465,7 @@ namespace PrivoxyManager
                 }
             }
 
-            if (LogList.Items.Count > 0)
+            if (LogList.Items.Count > 0 && AutoScrollCheckBox.IsChecked == true)
             {
                 LogList.ScrollIntoView(LogList.Items[LogList.Items.Count - 1]);
             }
