@@ -1,15 +1,14 @@
 ﻿using Microsoft.Win32;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Security.Principal;
 using System.ServiceProcess;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Threading;
-using System.Diagnostics;
-using System.Security.Principal;
-
+using System.Windows.Media;
 
 namespace PrivoxyManager
 {
@@ -18,47 +17,44 @@ namespace PrivoxyManager
         public MainWindow()
         {
             InitializeComponent();
+            CheckAdminWarning();
             _ = RefreshServiceStatusAsync();
         }
 
-        // --- Вспомогательные методы ---
+        // -------------------------------------------------------
+        // Helpers
+        // -------------------------------------------------------
 
         private string ConfigPath => ConfigPathTextBox.Text.Trim();
         private string ServiceName => ServiceNameTextBox.Text.Trim();
 
-        private void SetStatus(string message, bool isError = false)
+        private bool IsAdministrator =>
+            new WindowsPrincipal(WindowsIdentity.GetCurrent())
+                .IsInRole(WindowsBuiltInRole.Administrator);
+
+        private void CheckAdminWarning()
         {
-            StatusTextBlock.Text = message;
-            StatusTextBlock.Foreground = isError ? System.Windows.Media.Brushes.DarkRed
-                                                 : System.Windows.Media.Brushes.DarkGreen;
+            AdminWarningPanel.Visibility =
+                IsAdministrator
+                ? Visibility.Collapsed
+                : Visibility.Visible;
         }
 
-        private async Task RefreshServiceStatusAsync()
+        private void SetStatus(string message, bool isError = false)
         {
-            await Task.Run(() =>
+            Dispatcher.Invoke(() =>
             {
-                try
-                {
-                    using var sc = new ServiceController(ServiceName);
-                    var status = sc.Status;
+                StatusTextBlock.Text = message;
+                StatusTextBlock.Foreground = isError ? Brushes.DarkRed : Brushes.DarkGreen;
+            });
+        }
 
-                    Dispatcher.Invoke(() =>
-                    {
-                        ServiceStatusTextBlock.Text = $"Status: {status}";
-                        ServiceStatusTextBlock.Foreground =
-                            status == ServiceControllerStatus.Running
-                                ? System.Windows.Media.Brushes.DarkGreen
-                                : System.Windows.Media.Brushes.DarkOrange;
-                    });
-                }
-                catch (Exception ex)
-                {
-                    Dispatcher.Invoke(() =>
-                    {
-                        ServiceStatusTextBlock.Text = $"Status: not found ({ex.Message})";
-                        ServiceStatusTextBlock.Foreground = System.Windows.Media.Brushes.DarkRed;
-                    });
-                }
+        private void SetServiceStatus(string text, Brush color)
+        {
+            Dispatcher.Invoke(() =>
+            {
+                ServiceStatusTextBlock.Text = text;
+                ServiceStatusTextBlock.Foreground = color;
             });
         }
 
@@ -80,19 +76,9 @@ namespace PrivoxyManager
             });
         }
 
-        // --- Обработчики кнопок ---
-
-        private void BrowseConfig_Click(object sender, RoutedEventArgs e)
-        {
-            var ofd = new OpenFileDialog
-            {
-                Filter = "Privoxy config (config.txt)|config.txt|All files (*.*)|*.*",
-                FileName = ConfigPath
-            };
-
-            if (ofd.ShowDialog(this) == true)
-                ConfigPathTextBox.Text = ofd.FileName;
-        }
+        // -------------------------------------------------------
+        // Load config
+        // -------------------------------------------------------
 
         private async void LoadConfig_Click(object sender, RoutedEventArgs e)
         {
@@ -110,6 +96,10 @@ namespace PrivoxyManager
             }
         }
 
+        // -------------------------------------------------------
+        // Save config
+        // -------------------------------------------------------
+
         private async void SaveConfig_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -126,28 +116,48 @@ namespace PrivoxyManager
 
         private async void SaveAndRestart_Click(object sender, RoutedEventArgs e)
         {
-            await Dispatcher.InvokeAsync(() => SaveConfig_Click(sender, e),
-                DispatcherPriority.Background);
-
+            await SaveConfigInternalAsync();
             await RestartServiceInternalAsync();
         }
 
-        private async void StartService_Click(object sender, RoutedEventArgs e)
+        private async Task SaveConfigInternalAsync()
         {
-            await StartServiceInternalAsync();
+            try
+            {
+                string text = ConfigEditorTextBox.Text;
+                await File.WriteAllTextAsync(ConfigPath, text, Encoding.UTF8);
+                SetStatus("Config saved.");
+            }
+            catch (Exception ex)
+            {
+                SetStatus($"Error saving config: {ex.Message}", true);
+            }
         }
 
-        private async void StopService_Click(object sender, RoutedEventArgs e)
-        {
-            await StopServiceInternalAsync();
-        }
+        // -------------------------------------------------------
+        // Service control
+        // -------------------------------------------------------
 
-        private async void RestartService_Click(object sender, RoutedEventArgs e)
+        private async Task RefreshServiceStatusAsync()
         {
-            await RestartServiceInternalAsync();
-        }
+            await Task.Run(() =>
+            {
+                try
+                {
+                    using var sc = new ServiceController(ServiceName);
+                    var status = sc.Status;
 
-        // --- Работа со службой ---
+                    SetServiceStatus($"Status: {status}",
+                        status == ServiceControllerStatus.Running
+                            ? Brushes.DarkGreen
+                            : Brushes.DarkOrange);
+                }
+                catch (Exception ex)
+                {
+                    SetServiceStatus($"Status: not found ({ex.Message})", Brushes.DarkRed);
+                }
+            });
+        }
 
         private async Task StartServiceInternalAsync()
         {
@@ -156,19 +166,20 @@ namespace PrivoxyManager
                 try
                 {
                     using var sc = new ServiceController(ServiceName);
+
                     if (sc.Status == ServiceControllerStatus.Running)
                     {
-                        Dispatcher.Invoke(() => SetStatus("Service already running."));
+                        SetStatus("Service already running.");
                         return;
                     }
 
                     sc.Start();
                     sc.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromSeconds(20));
-                    Dispatcher.Invoke(() => SetStatus("Service started."));
+                    SetStatus("Service started.");
                 }
                 catch (Exception ex)
                 {
-                    Dispatcher.Invoke(() => SetStatus($"Error starting service: {ex.Message}", true));
+                    SetStatus($"Error starting service: {ex.Message}", true);
                 }
             });
 
@@ -182,19 +193,20 @@ namespace PrivoxyManager
                 try
                 {
                     using var sc = new ServiceController(ServiceName);
+
                     if (sc.Status == ServiceControllerStatus.Stopped)
                     {
-                        Dispatcher.Invoke(() => SetStatus("Service already stopped."));
+                        SetStatus("Service already stopped.");
                         return;
                     }
 
                     sc.Stop();
                     sc.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromSeconds(20));
-                    Dispatcher.Invoke(() => SetStatus("Service stopped."));
+                    SetStatus("Service stopped.");
                 }
                 catch (Exception ex)
                 {
-                    Dispatcher.Invoke(() => SetStatus($"Error stopping service: {ex.Message}", true));
+                    SetStatus($"Error stopping service: {ex.Message}", true);
                 }
             });
 
@@ -218,52 +230,35 @@ namespace PrivoxyManager
                     sc.Start();
                     sc.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromSeconds(20));
 
-                    Dispatcher.Invoke(() => SetStatus("Service restarted."));
+                    SetStatus("Service restarted.");
                 }
                 catch (Exception ex)
                 {
-                    Dispatcher.Invoke(() => SetStatus($"Error restarting service: {ex.Message}", true));
+                    SetStatus($"Error restarting service: {ex.Message}", true);
                 }
             });
 
             await RefreshServiceStatusAsync();
         }
 
-        // --- Поиск службы автоматически ---
-
-        private void DetectService_Click(object sender, RoutedEventArgs e)
+        private void StartService_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                var privoxyService = ServiceController
-                    .GetServices()
-                    .FirstOrDefault(s =>
-                        s.ServiceName.Contains("privoxy", StringComparison.OrdinalIgnoreCase) ||
-                        s.DisplayName.Contains("privoxy", StringComparison.OrdinalIgnoreCase));
-
-                if (privoxyService == null)
-                {
-                    MessageBox.Show(this,
-                        "Privoxy service not found. Check that it is installed.",
-                        "Detection",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Information);
-                    return;
-                }
-
-                ServiceNameTextBox.Text = privoxyService.ServiceName;
-                _ = RefreshServiceStatusAsync();
-                SetStatus($"Detected service: {privoxyService.ServiceName}");
-            }
-            catch (Exception ex)
-            {
-                SetStatus($"Error detecting service: {ex.Message}", true);
-            }
+            _ = StartServiceInternalAsync();
         }
 
-        private bool IsAdministrator =>
-            new WindowsPrincipal(WindowsIdentity.GetCurrent())
-            .IsInRole(WindowsBuiltInRole.Administrator);
+        private void StopService_Click(object sender, RoutedEventArgs e)
+        {
+            _ = StopServiceInternalAsync();
+        }
+
+        private void RestartService_Click(object sender, RoutedEventArgs e)
+        {
+            _ = RestartServiceInternalAsync();
+        }
+
+        // -------------------------------------------------------
+        // Run as Administrator
+        // -------------------------------------------------------
 
         private void RunAsAdmin_Click(object sender, RoutedEventArgs e)
         {
@@ -277,19 +272,69 @@ namespace PrivoxyManager
 
             var psi = new ProcessStartInfo(exePath)
             {
-                Verb = "runas",       // triggers UAC
+                Verb = "runas",
                 UseShellExecute = true
             };
 
             try
             {
                 Process.Start(psi);
-                Application.Current.Shutdown(); // close the non-admin instance
+                Application.Current.Shutdown();
             }
             catch (Exception ex)
             {
                 MessageBox.Show($"Run as admin cancelled or failed:\n{ex.Message}");
             }
+        }
+
+        // -------------------------------------------------------
+        // Detect service
+        // -------------------------------------------------------
+
+        private void DetectService_Click(object sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var found = ServiceController
+                    .GetServices()
+                    .FirstOrDefault(s =>
+                        s.ServiceName.Contains("privoxy", StringComparison.OrdinalIgnoreCase) ||
+                        s.DisplayName.Contains("privoxy", StringComparison.OrdinalIgnoreCase));
+
+                if (found == null)
+                {
+                    MessageBox.Show(
+                        "Privoxy service not found.",
+                        "Detection",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                    return;
+                }
+
+                ServiceNameTextBox.Text = found.ServiceName;
+                _ = RefreshServiceStatusAsync();
+                SetStatus($"Detected service: {found.ServiceName}");
+            }
+            catch (Exception ex)
+            {
+                SetStatus($"Error detecting service: {ex.Message}", true);
+            }
+        }
+
+        // -------------------------------------------------------
+        // Browse file
+        // -------------------------------------------------------
+
+        private void BrowseConfig_Click(object sender, RoutedEventArgs e)
+        {
+            var ofd = new OpenFileDialog
+            {
+                Filter = "Privoxy config (config.txt)|config.txt|All files (*.*)|*.*",
+                FileName = ConfigPath
+            };
+
+            if (ofd.ShowDialog(this) == true)
+                ConfigPathTextBox.Text = ofd.FileName;
         }
     }
 }

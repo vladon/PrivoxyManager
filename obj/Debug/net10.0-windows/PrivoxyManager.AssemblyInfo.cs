@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("PrivoxyManager")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+97f57f9faee1bdddc2acf7f36da8cd3da05af0d8")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1861c845c362f58d73b4508d7c4805b5f7a9ecc5")]
 [assembly: System.Reflection.AssemblyProductAttribute("PrivoxyManager")]
 [assembly: System.Reflection.AssemblyTitleAttribute("PrivoxyManager")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
