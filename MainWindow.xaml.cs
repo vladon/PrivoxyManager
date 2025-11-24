@@ -6,7 +6,6 @@ using System.Linq;
 using System.Security.Principal;
 using System.ServiceProcess;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 
@@ -18,7 +17,7 @@ namespace PrivoxyManager
         {
             InitializeComponent();
             CheckAdminWarning();
-            _ = RefreshServiceStatusAsync();
+            RefreshServiceStatus();
         }
 
         // -------------------------------------------------------
@@ -35,58 +34,48 @@ namespace PrivoxyManager
         private void CheckAdminWarning()
         {
             AdminWarningPanel.Visibility =
-                IsAdministrator
-                ? Visibility.Collapsed
-                : Visibility.Visible;
+                IsAdministrator ? Visibility.Collapsed : Visibility.Visible;
         }
 
         private void SetStatus(string message, bool isError = false)
         {
-            Dispatcher.Invoke(() =>
-            {
-                StatusTextBlock.Text = message;
-                StatusTextBlock.Foreground = isError ? Brushes.DarkRed : Brushes.DarkGreen;
-            });
+            StatusTextBlock.Text = message;
+            StatusTextBlock.Foreground = isError ? Brushes.DarkRed : Brushes.DarkGreen;
         }
 
-        private void SetServiceStatus(string text, Brush color)
+        private void SetServiceStatus(string message, Brush color)
         {
-            Dispatcher.Invoke(() =>
-            {
-                ServiceStatusTextBlock.Text = text;
-                ServiceStatusTextBlock.Foreground = color;
-            });
+            ServiceStatusTextBlock.Text = message;
+            ServiceStatusTextBlock.Foreground = color;
         }
 
-        private async Task<bool> EnsureConfigExistsAsync()
+        private bool EnsureConfigExists()
         {
-            return await Task.Run(() =>
-            {
-                if (File.Exists(ConfigPath)) return true;
+            if (File.Exists(ConfigPath))
+                return true;
 
-                Dispatcher.Invoke(() =>
-                    MessageBox.Show(
-                        this,
-                        $"Config file does not exist:\n{ConfigPath}",
-                        "Config not found",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Warning));
+            MessageBox.Show(
+                this,
+                $"Config file does not exist:\n{ConfigPath}",
+                "Config not found",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
 
-                return false;
-            });
+            return false;
         }
 
         // -------------------------------------------------------
-        // Load config
+        // Config load / save
         // -------------------------------------------------------
 
-        private async void LoadConfig_Click(object sender, RoutedEventArgs e)
+        private void LoadConfig_Click(object sender, RoutedEventArgs e)
         {
-            if (!await EnsureConfigExistsAsync()) return;
+            if (!EnsureConfigExists())
+                return;
 
             try
             {
-                string text = await File.ReadAllTextAsync(ConfigPath, Encoding.UTF8);
+                string text = File.ReadAllText(ConfigPath, Encoding.UTF8);
                 ConfigEditorTextBox.Text = text;
                 SetStatus("Config loaded.");
             }
@@ -96,16 +85,17 @@ namespace PrivoxyManager
             }
         }
 
-        // -------------------------------------------------------
-        // Save config
-        // -------------------------------------------------------
+        private void SaveConfig_Click(object sender, RoutedEventArgs e)
+        {
+            SaveConfigInternal();
+        }
 
-        private async void SaveConfig_Click(object sender, RoutedEventArgs e)
+        private void SaveConfigInternal()
         {
             try
             {
                 string text = ConfigEditorTextBox.Text;
-                await File.WriteAllTextAsync(ConfigPath, text, Encoding.UTF8);
+                File.WriteAllText(ConfigPath, text, Encoding.UTF8);
                 SetStatus("Config saved.");
             }
             catch (Exception ex)
@@ -114,146 +104,125 @@ namespace PrivoxyManager
             }
         }
 
-        private async void SaveAndRestart_Click(object sender, RoutedEventArgs e)
+        private void SaveAndRestart_Click(object sender, RoutedEventArgs e)
         {
-            await SaveConfigInternalAsync();
-            await RestartServiceInternalAsync();
-        }
-
-        private async Task SaveConfigInternalAsync()
-        {
-            try
-            {
-                string text = ConfigEditorTextBox.Text;
-                await File.WriteAllTextAsync(ConfigPath, text, Encoding.UTF8);
-                SetStatus("Config saved.");
-            }
-            catch (Exception ex)
-            {
-                SetStatus($"Error saving config: {ex.Message}", true);
-            }
+            SaveConfigInternal();
+            RestartServiceInternal();
         }
 
         // -------------------------------------------------------
         // Service control
         // -------------------------------------------------------
 
-        private async Task RefreshServiceStatusAsync()
+        private void RefreshServiceStatus()
         {
-            await Task.Run(() =>
+            try
             {
-                try
-                {
-                    using var sc = new ServiceController(ServiceName);
-                    var status = sc.Status;
+                using var sc = new ServiceController(ServiceName);
+                var status = sc.Status;
 
-                    SetServiceStatus($"Status: {status}",
-                        status == ServiceControllerStatus.Running
-                            ? Brushes.DarkGreen
-                            : Brushes.DarkOrange);
-                }
-                catch (Exception ex)
-                {
-                    SetServiceStatus($"Status: not found ({ex.Message})", Brushes.DarkRed);
-                }
-            });
+                SetServiceStatus(
+                    $"Status: {status}",
+                    status == ServiceControllerStatus.Running
+                        ? Brushes.DarkGreen
+                        : Brushes.DarkOrange);
+            }
+            catch (Exception ex)
+            {
+                SetServiceStatus($"Status: not found ({ex.Message})", Brushes.DarkRed);
+            }
         }
 
-        private async Task StartServiceInternalAsync()
+        private void StartServiceInternal()
         {
-            await Task.Run(() =>
+            try
             {
-                try
+                using var sc = new ServiceController(ServiceName);
+
+                if (sc.Status == ServiceControllerStatus.Running)
                 {
-                    using var sc = new ServiceController(ServiceName);
-
-                    if (sc.Status == ServiceControllerStatus.Running)
-                    {
-                        SetStatus("Service already running.");
-                        return;
-                    }
-
-                    sc.Start();
-                    sc.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromSeconds(20));
-                    SetStatus("Service started.");
+                    SetStatus("Service already running.");
+                    RefreshServiceStatus();
+                    return;
                 }
-                catch (Exception ex)
-                {
-                    SetStatus($"Error starting service: {ex.Message}", true);
-                }
-            });
 
-            await RefreshServiceStatusAsync();
+                sc.Start();
+                sc.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromSeconds(20));
+
+                SetStatus("Service started.");
+            }
+            catch (Exception ex)
+            {
+                SetStatus($"Error starting service: {ex.Message}", true);
+            }
+
+            RefreshServiceStatus();
         }
 
-        private async Task StopServiceInternalAsync()
+        private void StopServiceInternal()
         {
-            await Task.Run(() =>
+            try
             {
-                try
+                using var sc = new ServiceController(ServiceName);
+
+                if (sc.Status == ServiceControllerStatus.Stopped)
                 {
-                    using var sc = new ServiceController(ServiceName);
+                    SetStatus("Service already stopped.");
+                    RefreshServiceStatus();
+                    return;
+                }
 
-                    if (sc.Status == ServiceControllerStatus.Stopped)
-                    {
-                        SetStatus("Service already stopped.");
-                        return;
-                    }
+                sc.Stop();
+                sc.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromSeconds(20));
 
+                SetStatus("Service stopped.");
+            }
+            catch (Exception ex)
+            {
+                SetStatus($"Error stopping service: {ex.Message}", true);
+            }
+
+            RefreshServiceStatus();
+        }
+
+        private void RestartServiceInternal()
+        {
+            try
+            {
+                using var sc = new ServiceController(ServiceName);
+
+                if (sc.Status != ServiceControllerStatus.Stopped)
+                {
                     sc.Stop();
                     sc.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromSeconds(20));
-                    SetStatus("Service stopped.");
                 }
-                catch (Exception ex)
-                {
-                    SetStatus($"Error stopping service: {ex.Message}", true);
-                }
-            });
 
-            await RefreshServiceStatusAsync();
-        }
+                sc.Start();
+                sc.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromSeconds(20));
 
-        private async Task RestartServiceInternalAsync()
-        {
-            await Task.Run(() =>
+                SetStatus("Service restarted.");
+            }
+            catch (Exception ex)
             {
-                try
-                {
-                    using var sc = new ServiceController(ServiceName);
+                SetStatus($"Error restarting service: {ex.Message}", true);
+            }
 
-                    if (sc.Status != ServiceControllerStatus.Stopped)
-                    {
-                        sc.Stop();
-                        sc.WaitForStatus(ServiceControllerStatus.Stopped, TimeSpan.FromSeconds(20));
-                    }
-
-                    sc.Start();
-                    sc.WaitForStatus(ServiceControllerStatus.Running, TimeSpan.FromSeconds(20));
-
-                    SetStatus("Service restarted.");
-                }
-                catch (Exception ex)
-                {
-                    SetStatus($"Error restarting service: {ex.Message}", true);
-                }
-            });
-
-            await RefreshServiceStatusAsync();
+            RefreshServiceStatus();
         }
 
         private void StartService_Click(object sender, RoutedEventArgs e)
         {
-            _ = StartServiceInternalAsync();
+            StartServiceInternal();
         }
 
         private void StopService_Click(object sender, RoutedEventArgs e)
         {
-            _ = StopServiceInternalAsync();
+            StopServiceInternal();
         }
 
         private void RestartService_Click(object sender, RoutedEventArgs e)
         {
-            _ = RestartServiceInternalAsync();
+            RestartServiceInternal();
         }
 
         // -------------------------------------------------------
@@ -312,7 +281,7 @@ namespace PrivoxyManager
                 }
 
                 ServiceNameTextBox.Text = found.ServiceName;
-                _ = RefreshServiceStatusAsync();
+                RefreshServiceStatus();
                 SetStatus($"Detected service: {found.ServiceName}");
             }
             catch (Exception ex)
@@ -322,7 +291,7 @@ namespace PrivoxyManager
         }
 
         // -------------------------------------------------------
-        // Browse file
+        // Browse config
         // -------------------------------------------------------
 
         private void BrowseConfig_Click(object sender, RoutedEventArgs e)
