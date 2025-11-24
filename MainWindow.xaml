@@ -66,6 +66,10 @@
                         <Button Content="Restart"
                                 Width="80"
                                 Click="RestartService_Click" />
+                        <Button Content="Run as Administrator"
+                                Margin="0,10,0,0"
+                                Padding="10,5"
+                                Click="RunAsAdmin_Click" />
                     </StackPanel>
                     <TextBlock x:Name="ServiceStatusTextBlock"
                                Margin="0,8,0,0"

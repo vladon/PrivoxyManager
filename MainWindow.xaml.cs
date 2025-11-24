@@ -7,6 +7,9 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
+using System.Diagnostics;
+using System.Security.Principal;
+
 
 namespace PrivoxyManager
 {
@@ -255,6 +258,37 @@ namespace PrivoxyManager
             catch (Exception ex)
             {
                 SetStatus($"Error detecting service: {ex.Message}", true);
+            }
+        }
+
+        private bool IsAdministrator =>
+            new WindowsPrincipal(WindowsIdentity.GetCurrent())
+            .IsInRole(WindowsBuiltInRole.Administrator);
+
+        private void RunAsAdmin_Click(object sender, RoutedEventArgs e)
+        {
+            if (IsAdministrator)
+            {
+                MessageBox.Show("Already running as administrator.");
+                return;
+            }
+
+            string exePath = Process.GetCurrentProcess().MainModule!.FileName!;
+
+            var psi = new ProcessStartInfo(exePath)
+            {
+                Verb = "runas",       // triggers UAC
+                UseShellExecute = true
+            };
+
+            try
+            {
+                Process.Start(psi);
+                Application.Current.Shutdown(); // close the non-admin instance
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Run as admin cancelled or failed:\n{ex.Message}");
             }
         }
     }
