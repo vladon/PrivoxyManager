@@ -1,3 +1,11 @@
+D:\projects\PrivoxyManager\bin\Debug\net10.0-windows\PrivoxyManager.exe
+D:\projects\PrivoxyManager\bin\Debug\net10.0-windows\PrivoxyManager.dll
+D:\projects\PrivoxyManager\bin\Debug\net10.0-windows\runtimes\win\lib\net10.0\System.ServiceProcess.ServiceController.dll
+D:\projects\PrivoxyManager\bin\Debug\net10.0-windows\PrivoxyManager.deps.json
+D:\projects\PrivoxyManager\bin\Debug\net10.0-windows\PrivoxyManager.runtimeconfig.json
+D:\projects\PrivoxyManager\bin\Debug\net10.0-windows\PrivoxyManager.pdb
+D:\projects\PrivoxyManager\bin\Debug\net10.0-windows\System.ServiceProcess.ServiceController.dll
+D:\projects\PrivoxyManager\obj\Debug\net10.0-windows\PrivoxyManager.csproj.AssemblyReference.cache
 D:\projects\PrivoxyManager\obj\Debug\net10.0-windows\MainWindow.baml
 D:\projects\PrivoxyManager\obj\Debug\net10.0-windows\MainWindow.g.cs
 D:\projects\PrivoxyManager\obj\Debug\net10.0-windows\App.g.cs
@@ -8,14 +16,6 @@ D:\projects\PrivoxyManager\obj\Debug\net10.0-windows\PrivoxyManager.AssemblyInfo
 D:\projects\PrivoxyManager\obj\Debug\net10.0-windows\PrivoxyManager.AssemblyInfo.cs
 D:\projects\PrivoxyManager\obj\Debug\net10.0-windows\PrivoxyManager.csproj.CoreCompileInputs.cache
 D:\projects\PrivoxyManager\obj\Debug\net10.0-windows\PrivoxyManager.sourcelink.json
-D:\projects\PrivoxyManager\bin\Debug\net10.0-windows\PrivoxyManager.exe
-D:\projects\PrivoxyManager\bin\Debug\net10.0-windows\PrivoxyManager.deps.json
-D:\projects\PrivoxyManager\bin\Debug\net10.0-windows\PrivoxyManager.runtimeconfig.json
-D:\projects\PrivoxyManager\bin\Debug\net10.0-windows\PrivoxyManager.dll
-D:\projects\PrivoxyManager\bin\Debug\net10.0-windows\PrivoxyManager.pdb
-D:\projects\PrivoxyManager\bin\Debug\net10.0-windows\System.ServiceProcess.ServiceController.dll
-D:\projects\PrivoxyManager\bin\Debug\net10.0-windows\runtimes\win\lib\net10.0\System.ServiceProcess.ServiceController.dll
-D:\projects\PrivoxyManager\obj\Debug\net10.0-windows\PrivoxyManager.csproj.AssemblyReference.cache
 D:\projects\PrivoxyManager\obj\Debug\net10.0-windows\PrivoxyM.A3FE2F60.Up2Date
 D:\projects\PrivoxyManager\obj\Debug\net10.0-windows\PrivoxyManager.dll
 D:\projects\PrivoxyManager\obj\Debug\net10.0-windows\refint\PrivoxyManager.dll

@@ -39,6 +39,7 @@ namespace PrivoxyManager
         private FileStream? _logStream;
         private StreamReader? _logReader;
         private System.Windows.Threading.DispatcherTimer? _logTimer;
+        private readonly List<TextBlock> _allLogEntries = new List<TextBlock>();
 
         private string LogPath => Path.Combine(
             Path.GetDirectoryName(ConfigPath)!,
@@ -398,6 +399,7 @@ namespace PrivoxyManager
         private void ClearLog_Click(object sender, RoutedEventArgs e)
         {
             LogList.Items.Clear();
+            _allLogEntries.Clear();
         }
 
 
@@ -431,8 +433,8 @@ namespace PrivoxyManager
                 FontSize = 13
             };
 
-            LogList.Items.Add(tb);
-            LogList.ScrollIntoView(tb);
+            _allLogEntries.Add(tb);
+            ApplyFilter();
         }
 
         private void AppendLogMessage(string message)
@@ -445,8 +447,39 @@ namespace PrivoxyManager
                 FontSize = 13
             };
 
-            LogList.Items.Add(tb);
-            LogList.ScrollIntoView(tb);
+            _allLogEntries.Add(tb);
+            ApplyFilter();
+        }
+
+        private void ApplyFilter()
+        {
+            LogList.Items.Clear();
+            string filterText = FilterTextBox.Text.Trim();
+
+            foreach (var entry in _allLogEntries)
+            {
+                if (string.IsNullOrEmpty(filterText) ||
+                    entry.Text.IndexOf(filterText, StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    LogList.Items.Add(entry);
+                }
+            }
+
+            if (LogList.Items.Count > 0)
+            {
+                LogList.ScrollIntoView(LogList.Items[LogList.Items.Count - 1]);
+            }
+        }
+
+        private void FilterTextBox_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            ApplyFilter();
+        }
+
+        private void ClearFilter_Click(object sender, RoutedEventArgs e)
+        {
+            FilterTextBox.Text = string.Empty;
+            ApplyFilter();
         }
 
 
