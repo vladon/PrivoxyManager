@@ -7,6 +7,7 @@ using System.Security.Principal;
 using System.ServiceProcess;
 using System.Text;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Media;
 
 namespace PrivoxyManager
@@ -19,6 +20,14 @@ namespace PrivoxyManager
             CheckAdminWarning();
             RefreshServiceStatus();
         }
+
+        private readonly SolidColorBrush ColorError = new SolidColorBrush(Color.FromRgb(220, 60, 60));
+        private readonly SolidColorBrush ColorWarning = new SolidColorBrush(Color.FromRgb(255, 200, 0));
+        private readonly SolidColorBrush ColorInfo = new SolidColorBrush(Color.FromRgb(80, 180, 255));
+        private readonly SolidColorBrush ColorDebug = new SolidColorBrush(Color.FromRgb(160, 160, 160));
+        private readonly SolidColorBrush ColorSuccess = new SolidColorBrush(Color.FromRgb(0, 200, 120));
+        private readonly SolidColorBrush ColorDefault = new SolidColorBrush(Color.FromRgb(240, 240, 240));
+
 
         // -------------------------------------------------------
         // Helpers
@@ -346,7 +355,7 @@ namespace PrivoxyManager
                 _logTimer.Tick += LogTimer_Tick;
                 _logTimer.Start();
 
-                LogTextBox.AppendText($"--- Log started: {DateTime.Now} ---\n");
+                AppendLogMessage($"--- Log started: {DateTime.Now} ---");
             }
             catch (Exception ex)
             {
@@ -363,8 +372,7 @@ namespace PrivoxyManager
                 string? line = _logReader.ReadLine();
                 if (line != null)
                 {
-                    LogTextBox.AppendText(line + "\n");
-                    LogTextBox.ScrollToEnd();
+                    AppendColoredLog(line);
                 }
             }
         }
@@ -372,7 +380,7 @@ namespace PrivoxyManager
         private void StopLog_Click(object sender, RoutedEventArgs e)
         {
             StopLogInternal();
-            LogTextBox.AppendText($"--- Log stopped: {DateTime.Now} ---\n");
+            AppendLogMessage($"--- Log stopped: {DateTime.Now} ---");
         }
 
         private void StopLogInternal()
@@ -389,13 +397,56 @@ namespace PrivoxyManager
 
         private void ClearLog_Click(object sender, RoutedEventArgs e)
         {
-            LogTextBox.Clear();
+            LogList.Items.Clear();
         }
+
 
         protected override void OnClosing(System.ComponentModel.CancelEventArgs e)
         {
             StopLogInternal();
             base.OnClosing(e);
+        }
+
+        private void AppendColoredLog(string line)
+        {
+            Brush color = ColorDefault;
+            string u = line.ToUpperInvariant();
+
+            if (u.Contains("ERROR") || u.Contains("FATAL"))
+                color = ColorError;
+            else if (u.Contains("WARNING") || u.Contains("WARN"))
+                color = ColorWarning;
+            else if (u.Contains("CONNECT") || u.Contains("REQUEST"))
+                color = ColorSuccess;
+            else if (u.Contains("CONFIG") || u.Contains("INITIALIZ") || u.Contains("START"))
+                color = ColorInfo;
+            else if (u.Contains("DEBUG"))
+                color = ColorDebug;
+
+            var tb = new TextBlock
+            {
+                Text = line,
+                Foreground = color,
+                FontFamily = new FontFamily("Consolas"),
+                FontSize = 13
+            };
+
+            LogList.Items.Add(tb);
+            LogList.ScrollIntoView(tb);
+        }
+
+        private void AppendLogMessage(string message)
+        {
+            var tb = new TextBlock
+            {
+                Text = message,
+                Foreground = ColorDefault,
+                FontFamily = new FontFamily("Consolas"),
+                FontSize = 13
+            };
+
+            LogList.Items.Add(tb);
+            LogList.ScrollIntoView(tb);
         }
 
 
