@@ -128,6 +128,6 @@
                    Margin="4,6,4,0"
                    Foreground="#777"
                    FontSize="11"
-                   Text="Privoxy Manager — редактирует config.txt и управляет службой Windows ‘Privoxy’. Все операции выполняются от имени текущего пользователя; для управления службой требуется запуск от Администратора."/>
+                   Text="Privoxy Manager edits config.txt and manages the Windows ‘Privoxy’ service. All operations are performed on behalf of the current user; running the service requires an Administrator."/>
     </Grid>
 </Window>
