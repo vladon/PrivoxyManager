@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "jb2qhvp14s8=",
+  "dgSpecHash": "7TO47owm6kE=",
   "success": true,
-  "projectFilePath": "d:\\projects\\PrivoxyManager\\PrivoxyManager.csproj",
+  "projectFilePath": "D:\\projects\\PrivoxyManager\\PrivoxyManager.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\vladon\\.nuget\\packages\\system.serviceprocess.servicecontroller\\10.0.0\\system.serviceprocess.servicecontroller.10.0.0.nupkg.sha512"
   ],

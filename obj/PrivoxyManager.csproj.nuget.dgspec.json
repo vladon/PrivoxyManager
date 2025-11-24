@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "d:\\projects\\PrivoxyManager\\PrivoxyManager.csproj": {}
+    "D:\\projects\\PrivoxyManager\\PrivoxyManager.csproj": {}
   },
   "projects": {
-    "d:\\projects\\PrivoxyManager\\PrivoxyManager.csproj": {
+    "D:\\projects\\PrivoxyManager\\PrivoxyManager.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "d:\\projects\\PrivoxyManager\\PrivoxyManager.csproj",
+        "projectUniqueName": "D:\\projects\\PrivoxyManager\\PrivoxyManager.csproj",
         "projectName": "PrivoxyManager",
-        "projectPath": "d:\\projects\\PrivoxyManager\\PrivoxyManager.csproj",
+        "projectPath": "D:\\projects\\PrivoxyManager\\PrivoxyManager.csproj",
         "packagesPath": "C:\\Users\\vladon\\.nuget\\packages\\",
-        "outputPath": "d:\\projects\\PrivoxyManager\\obj\\",
+        "outputPath": "D:\\projects\\PrivoxyManager\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
