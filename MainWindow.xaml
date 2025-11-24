@@ -5,7 +5,10 @@
         Height="650"
         Width="1000"
         WindowStartupLocation="CenterScreen">
+<TabControl x:Name="MainTabs" Margin="0,10,0,0">
+    <TabItem Header="Config">
     <Grid Margin="12">
+        
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="5" />
@@ -13,14 +16,14 @@
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
 
-<Border x:Name="AdminWarningPanel"
-        Background="#FF4500"
-        Padding="8"
-        Visibility="Collapsed">
-    <TextBlock Text="⚠ Приложение запущено без прав администратора. Некоторые функции будут недоступны."
-               Foreground="White"
-               FontWeight="Bold"/>
-</Border>
+        <Border x:Name="AdminWarningPanel"
+                Background="#FF4500"
+                Padding="8"
+                Visibility="Collapsed">
+            <TextBlock Text="⚠ Приложение запущено без прав администратора. Некоторые функции будут недоступны."
+                    Foreground="White"
+                    FontWeight="Bold"/>
+        </Border>
 
         <!-- Верхняя панель настроек -->
         <Border Grid.Row="0" Padding="10" CornerRadius="8" BorderThickness="1" BorderBrush="#DDD">
@@ -144,4 +147,32 @@
                    FontSize="11"
                    Text="Privoxy Manager edits config.txt and manages the Windows ‘Privoxy’ service. All operations are performed on behalf of the current user; running the service requires an Administrator."/>
     </Grid>
+    </TabItem>
+   <TabItem Header="Log">
+        <Grid Margin="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                <Button Content="Start log" Width="100" Click="StartLog_Click"/>
+                <Button Content="Stop log" Width="100" Margin="10,0,0,0" Click="StopLog_Click"/>
+                <Button Content="Clear" Width="100" Margin="10,0,0,0" Click="ClearLog_Click"/>
+            </StackPanel>
+
+            <ScrollViewer Grid.Row="1"
+                          VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Auto">
+                <TextBox x:Name="LogTextBox"
+                         FontFamily="Consolas"
+                         FontSize="13"
+                         AcceptsReturn="True"
+                         AcceptsTab="True"
+                         IsReadOnly="True"
+                         TextWrapping="NoWrap"/>
+            </ScrollViewer>
+        </Grid>
+    </TabItem>
+</TabControl>    
 </Window>
